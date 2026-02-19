@@ -41,33 +41,6 @@
     <loc>https://approval.vote/report/us/mo/stl/2020/11/propd</loc>
   </url>
   <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd1</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd12</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd13</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd14</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd2</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd4</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd7</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd8</loc>
-  </url>
-  <url>
-    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd9</loc>
-  </url>
-  <url>
     <loc>https://approval.vote/report/us/mo/stl/2021/03/comptroller</loc>
   </url>
   <url>
@@ -119,7 +92,31 @@
     <loc>https://approval.vote/report/us/mo/stl/2021/03/wd9</loc>
   </url>
   <url>
-    <loc>https://approval.vote/report/us/ut/senate_district_11/2025/12/utah-senate-district-11</loc>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd1</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd12</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd13</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd14</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd2</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd4</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd7</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd8</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/mo/stl/2023/03/wd9</loc>
   </url>
   <url>
     <loc>https://approval.vote/report/us/nd/fargo/2018/11/measure1</loc>
@@ -135,5 +132,8 @@
   </url>
   <url>
     <loc>https://approval.vote/report/us/nd/fargo/2024/06/commissioner</loc>
+  </url>
+  <url>
+    <loc>https://approval.vote/report/us/ut/senate_district_11/2025/12/utah-senate-district-11</loc>
   </url>
 </urlset>
