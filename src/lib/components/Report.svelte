@@ -13,7 +13,9 @@
     report: IContestReport;
   }
 
-  let { report }: Props = $props();
+  // Avoid capturing the initial `report` value only; derive from props.
+  let props: Props = $props();
+  let report = $derived.by(() => props.report);
 
   function getCandidate(cid: Allocatee): ICandidate {
     return report.candidates[cid];
@@ -53,16 +55,20 @@
     return `${months[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
   }
 
-  const sumVotes = $derived(report.candidates.map((candidate) => candidate.votes).reduce((a, b) => a + b));
+  let sumVotes = $derived.by(() =>
+    report.candidates.map((candidate) => candidate.votes).reduce((a, b) => a + b)
+  );
 
-  const numCandidates = $derived(report.candidates.filter((candidate) => !candidate.writeIn).length);
+  let numCandidates = $derived.by(() =>
+    report.candidates.filter((candidate) => !candidate.writeIn).length
+  );
 </script>
 
 <div class="row">
   <p class="description"></p>
   <div class="electionHeader">
     <h1>
-      <a href="{resolve('/')}">approval.vote</a>
+      <a href="{resolve('/', {})}">approval.vote</a>
       //
       <strong>{report.info.jurisdictionName}</strong>
       {report.info.officeName}

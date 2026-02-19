@@ -6,28 +6,35 @@
     data: import('./$types').PageData;
   }
 
-  let { data }: Props = $props();
-  const indexArray = $derived(Array.from(data.index));
+  let props: Props = $props();
+
+  // Avoid capturing the initial `data` value only; derive from props for client-side navigation.
+  type IndexByYear = Map<string, IElectionIndexEntry[]>;
+  let index: IndexByYear = $derived.by(() => props.data.index as IndexByYear);
 
   // Calculate total statistics (using reduce to avoid mutation warnings)
-  const stats = $derived(indexArray.reduce(
-    (acc, [_, elections]) => {
-      elections.forEach((election) => {
-        election.contests.forEach((contest) => {
-          acc.totalRaces++;
-          acc.totalApprovals += contest.sumVotes || 0;
-          acc.totalBallots += contest.ballotCount || 0;
+  type Stats = { totalRaces: number; totalApprovals: number; totalBallots: number };
+  let stats: Stats = $derived.by((): Stats => {
+    return Array.from(index.entries()).reduce<Stats>(
+      (acc, [_year, elections]) => {
+        elections.forEach((election) => {
+          election.contests.forEach((contest) => {
+            acc.totalRaces++;
+            acc.totalApprovals += contest.sumVotes || 0;
+            acc.totalBallots += contest.ballotCount || 0;
+          });
         });
-      });
-      return acc;
-    },
-    { totalRaces: 0, totalApprovals: 0, totalBallots: 0 }
-  ));
+        return acc;
+      },
+      { totalRaces: 0, totalApprovals: 0, totalBallots: 0 }
+    );
+  });
 
-  const totalRaces = $derived(stats.totalRaces);
-  const totalApprovals = $derived(stats.totalApprovals);
-  const totalBallots = $derived(stats.totalBallots);
-  const avgApprovalsPerBallot = $derived(
+  let totalRaces = $derived.by(() => stats.totalRaces);
+  let totalApprovals = $derived.by(() => stats.totalApprovals);
+  let totalBallots = $derived.by(() => stats.totalBallots);
+
+  let avgApprovalsPerBallot = $derived.by(() =>
     totalBallots > 0 ? (totalApprovals / totalBallots).toFixed(1) : '0.0'
   );
 </script>
@@ -87,7 +94,7 @@
         <h1>approval.vote:</h1> detailed reports on approval voting elections.
       </div>
       <p>
-        With <a href="{resolve('/about-approval-voting')}"> Approval Voting</a> voters can choose as many candidates
+        With <a href="{resolve('/about-approval-voting', {})}"> Approval Voting</a> voters can choose as many candidates
         as they like, and the one receiving the most votes wins.
       </p>
 
@@ -106,10 +113,11 @@
       </p>
       <p>
         For more information, see
-        <a href="{resolve('/about')}">the about page</a>, learn about
-        <a href="{resolve('/about-approval-voting')}">approval voting</a>, compare
-        <a href="{resolve('/rcv-vs-approval')}">RCV vs approval voting</a>, or design your own system with
-        the <a href="{resolve('/voting-method-finder')}">voting method finder</a>.
+        <a href="{resolve('/about', {})}">the about page</a>, learn about
+        <a href="{resolve('/about-approval-voting', {})}">approval voting</a>, compare
+        <a href="{resolve('/rcv-vs-approval', {})}">RCV vs approval voting</a>, or design your own system with
+        the <a href="{resolve('/voting-method-finder', {})}">voting method finder</a>.
+        You can also browse the underlying database on <a href="{resolve('/data', {})}">the data page</a>.
       </p>
 
       <p>
@@ -119,7 +127,7 @@
     </div>
 
     <div class="rightCol">
-      {#each indexArray as [year, elections]}
+      {#each [...index] as [year, elections]}
         <div class="yearSection">
           <h2>{year}</h2>
           <div class="electionSection">
@@ -132,7 +140,7 @@
               </div>
               {#each election.contests as contest}
                 <div class="race">
-                  <a href="{resolve(`/report/${election.path}/${contest.office}`)}">
+                  <a href="{resolve(`/report/${election.path}/${contest.office}`, {})}">
                     <div class="race-content">
                       <div class="title">
                         <strong>{contest.officeName}</strong>

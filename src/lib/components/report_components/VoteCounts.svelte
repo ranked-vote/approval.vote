@@ -10,7 +10,9 @@
     report: IContestReport;
   }
 
-  let { report }: Props_1 = $props();
+  // Avoid capturing the initial `report` value only; derive from props.
+  let props_1: Props_1 = $props();
+  let report = $derived.by(() => props_1.report);
 
   function tooltip(elem: Element, content: string | null): void {
     if (content === null) {
@@ -33,13 +35,13 @@
   const width = 600;
 
   // Sort candidates by votes in descending order
-  const candidates = $derived([...report.candidates].sort((a, b) => b.votes - a.votes));
+  let candidates: ICandidate[] = $derived.by(() => [...report.candidates].sort((a, b) => b.votes - a.votes));
 
-  const ballotsCast = $derived(report.ballotCount);
+  let ballotsCast: number = $derived.by(() => report.ballotCount);
   // Scale based on 100% of ballots cast (theoretical maximum in approval voting)
-  const scale = $derived((width - labelSpace - 50) / ballotsCast);
+  let scale = $derived.by(() => (width - labelSpace - 50) / ballotsCast);
 
-  const height = $derived(outerHeight * candidates.length);
+  let height = $derived.by(() => outerHeight * candidates.length);
 
   // Color scheme for different approval counts (lighter for more approvals, starting with theme base)
   const approvalColors = {
