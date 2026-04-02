@@ -1,0 +1,233 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{enumitem}
+\hypersetup{colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue}
+\setstretch{1.1}
+
+\title{Approval Voting in Practice: Evidence from Cast Vote Records in the 2025 St.~Louis Mayoral Primary}
+\author{Felix Sargent}
+\date{Draft manuscript}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Empirical research on approval voting has been constrained by the scarcity of ballot-level public data from governmental elections. This paper analyzes cast vote records (CVRs) from the March 4, 2025 St.~Louis mayoral primary, a nonpartisan top-two election conducted under approval voting. Using the raw Hart Verity XML export and the associated open-source parsing pipeline, I reconstruct ballot-level approval behavior in the four-candidate mayoral contest. The CVR extract contains 34,982 mayor-contest records, of which 34,945 include at least one approval and 37 are blank in the mayoral contest. Across nonblank mayoral ballots, voters cast 48,908 approvals, for an average of 1.3996 approvals per ballot. Three findings stand out. First, approval voting did not collapse into plurality-like behavior: 32.80\% of nonblank ballots approved more than one candidate. Second, multi-approval behavior was especially common among supporters of lower-polling candidates, indicating that voters whose preferred candidate was less viable still used the ballot to express additional acceptable choices. Third, conditional co-approval patterns reveal coalition structure and candidate positioning that would be invisible under single-choice tabulation. I also introduce an ``anyone but'' measure that identifies ballots expressing maximal opposition to a single candidate. The results do not establish whether every approval was sincere rather than strategic, but they do show that in a real governmental election voters made substantial use of the additional expressive capacity that approval voting provides. The paper contributes one of the first detailed ballot-level empirical studies of approval voting in US public elections and argues that CVR analysis can play an important role in evaluating claims about strategic collapse, voter expressiveness, and coalition formation under approval ballots.
+\end{abstract}
+
+\section{Introduction}
+Approval voting has long occupied an unusual place in the voting-systems literature. On the one hand, it is among the simplest non-plurality ballot formats: voters may support as many candidates as they find acceptable, and the candidate with the most approvals wins \citep{brams2007approval}. On the other hand, much of the normative and strategic debate around approval voting has proceeded either theoretically or through simulations, because real governmental elections using approval ballots have been rare and ballot-level public data rarer still.
+
+This paper studies one such election. On March 4, 2025, the city of St.~Louis, Missouri held a nonpartisan top-two mayoral primary under approval voting. The election is notable for two reasons. First, St.~Louis is one of only a handful of US jurisdictions to have adopted approval voting for governmental elections. Second, cast vote records from the election were made available, permitting ballot-level analysis of how voters actually used an approval ballot.
+
+The paper addresses three empirical questions. First, to what extent did voters make use of approval voting's permissive ballot format? Second, what do ballot-level approval patterns reveal about coalition structure and candidate positioning? Third, what, if anything, can the St.~Louis data tell us about the common claim that approval voting tends to collapse into bullet voting, thereby reproducing plurality-style pathologies?
+
+The main findings are straightforward. The election did not collapse into strict single-candidate voting. Approximately one-third of voters approved more than one candidate. This behavior was not evenly distributed across the electorate: supporters of lower-polling candidates were much more likely to cast multi-approval ballots than supporters of the two frontrunners. In addition, conditional co-approval patterns reveal asymmetric relationships among candidates, including evidence that Cara Spencer, the leading candidate, drew substantial support from backers of both Michael Butler and Andrew Jones. Finally, ballots approving all candidates except one provide a useful descriptive measure of concentrated opposition, and these ballots disproportionately targeted incumbent mayor Tishaura O.~Jones.
+
+This is not a causal paper about whether approval voting is superior to every rival rule, nor does it claim that all observed approvals were necessarily sincere. What it does show is that approval ballots in a real election produced observable patterns of preference expression that are more informative than the aggregate tally alone. In that sense, the paper contributes to the empirical study of approval voting in practice rather than merely in theory.
+
+\section{Institutional Background}
+St.~Louis adopted approval voting following dissatisfaction with the 2017 mayoral primary, in which Lyda Krewson won the Democratic nomination with only 32.04\% of the vote in a fragmented field \citep{ballotpedia2017stl}. Reform advocates argued that the city's existing electoral rules rewarded vote splitting and could permit a candidate opposed by most voters to prevail in a crowded contest. Proposition~D, approved by voters in 2020, replaced the prior plurality primary with a two-round system: a nonpartisan approval-voting primary followed by a general election between the top two candidates \citep{stlapproves, ballotpedia2025primary}.
+
+The March 4, 2025 mayoral primary featured four candidates: Cara Spencer, incumbent mayor Tishaura O.~Jones, Michael (Mike) Butler, and Andrew Jones. Under the approved rule, each voter could approve any number of these candidates; the two candidates with the largest approval totals advanced to the April general election. Official results show that Spencer and Tishaura O.~Jones advanced with 68.181\% and 33.229\% approval respectively, while Butler and Andrew Jones received 24.899\% and 13.647\% \citep{stlresults2025, sargent2025stl}.
+
+This institutional context matters for interpretation. The election was nonpartisan in form but plainly political in substance. It was also a top-two primary rather than a single-round executive election. These features likely shaped incentives for multiple approvals. A voter may have used the approval ballot not only to support a favored candidate, but also to help determine which two candidates reached the general election. The findings below should therefore be read as evidence about approval-voting behavior in a particular, substantively important, but institutionally specific setting.
+
+\section{Related Literature}
+The modern literature on approval voting begins with \citet{brams2007approval}, who emphasize the rule's simplicity, monotonicity, and strategic robustness relative to plurality voting. More recent work has focused on approval voting in multiwinner settings, including proportional variants such as proportional approval voting (PAV), justified representation, and related allocation rules \citep{aziz2017jr, brams2022excess}. Although that literature is primarily theoretical, it underscores a broader point relevant here: approval ballots can encode more information than a single-choice ballot even when they do not require a full ranking.
+
+Empirical work on approval voting remains comparatively sparse. This is partly because few public elections have used the rule, and partly because ballot-level data have seldom been released. As a result, claims about behavior under approval voting are often drawn from survey experiments, simulations, or argument by analogy from other methods. One recurring criticism is that approval voting encourages ``bullet voting,'' that is, approving only a single candidate in order to avoid helping a compromise option \citep{fairvote_comparison}. If such behavior were sufficiently pervasive, an approval election might approximate plurality voting in practice even if not in form.
+
+The St.~Louis CVRs offer a rare opportunity to evaluate these claims against real electoral behavior. The present paper is therefore less about formal properties of the rule than about the empirical content of approval ballots: how often voters approve multiple candidates, how approval coalitions align across candidates, and what can be inferred from distinctive ballot types such as approving all but one candidate.
+
+\section{Data and Measures}
+\subsection{Data}
+The analysis uses cast vote records from the March 4, 2025 St.~Louis primary election. The raw source file in the project archive is a Hart Verity CVR ZIP export (\texttt{CVRExport-8-27-2025.zip}) containing 34,982 XML ballot files for the citywide contests in that election. The project-specific parser in \texttt{cvr/st-louis/cvr\_parser.py} ingests these XML files into normalized SQLite tables for ballots, contests, and selections, while \texttt{process\_all.py} computes contest-level co-approval and voting-pattern summaries and exports them into the main website database.
+
+The election included several contests, but I focus on the mayoral race because it offers the clearest case for evaluating approval-voting behavior in a contested citywide election. In the raw CVR tables, the mayoral contest appears on 34,982 contest records. Of these, 34,945 ballots contain at least one mayoral approval and 37 contain no mayoral approval. The website's report database stores the nonblank mayoral ballot count as the official ballot count for the report. Across those 34,945 nonblank mayoral ballots, voters cast 48,908 total approvals, implying an average of 1.3996 approvals per ballot.
+
+A replication package accompanies this manuscript bundle, including the raw mayoral CVR export, the parsing and aggregation scripts, and derived summary tables. The main remaining documentation task is to add or expand a compact codebook describing how undervotes and blank mayoral contest records are handled.
+
+\subsection{Measures}
+I use five descriptive measures.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Approval totals.} For each candidate $i$, let $A_i$ denote the number of ballots approving candidate $i$.
+    \item \textbf{Approval-count distribution.} For each ballot $b$, let $k_b$ be the number of mayoral candidates approved on that ballot. The distribution of $k_b$ summarizes the extent of single- versus multi-candidate approval.
+    \item \textbf{Conditional multi-approval rate.} For candidate $i$, I examine the share of that candidate's approvers who also approved at least one additional candidate.
+    \item \textbf{Co-approval matrix.} For candidates $i$ and $j$, define
+    \[
+        C_{ij} = \Pr(\text{approve } j \mid \text{approve } i).
+    \]
+    This asymmetric measure captures coalition overlap as experienced from the perspective of candidate $i$'s supporters.
+    \item \textbf{``Anyone but'' ballots.} In a four-candidate race, these are ballots approving exactly three candidates. For excluded candidate $j$, the measure records the share of all three-approval ballots that omitted $j$.
+\end{enumerate}
+
+These are descriptive rather than causal measures. They do not allow one to infer voters' complete preference orderings, nor can they distinguish sincere approvals from strategic ones without additional survey or experimental evidence. They do, however, reveal behavioral patterns that are inaccessible in single-choice tabulations.
+
+\section{Results}
+\subsection{Election outcome and ballot use}
+Table~\ref{tab:results} summarizes the official approval totals and shares. Spencer led comfortably with 23,826 approvals (68.181\%) and advanced with incumbent Tishaura O.~Jones, who received 11,612 approvals (33.229\%). Butler and Andrew Jones received 8,701 (24.899\%) and 4,769 (13.647\%) approvals, respectively.
+
+\begin{table}[htbp]
+\centering
+\caption{Approval totals in the 2025 St.~Louis mayoral primary}
+\label{tab:results}
+\begin{tabular}{lccc}
+\toprule
+Candidate & Approvals & Approval share (\%) & Advanced to general election \\
+\midrule
+Cara Spencer & 23,826 & 68.181 & Yes \\
+Tishaura O.~Jones & 11,612 & 33.229 & Yes \\
+Michael (Mike) Butler & 8,701 & 24.899 & No \\
+Andrew Jones & 4,769 & 13.647 & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The more interesting question, however, concerns how voters used the ballot. Table~\ref{tab:distribution} reports the approval-count distribution across nonblank mayoral ballots. Although a majority of voters approved exactly one candidate, 11,463 voters (32.803\%) approved more than one. Consequently, approval voting in this election did not reduce to a purely single-choice mechanism in practice.
+
+\begin{table}[htbp]
+\centering
+\caption{Distribution of approvals per nonblank mayoral ballot}
+\label{tab:distribution}
+\begin{tabular}{rcc}
+\toprule
+Approvals on ballot & Count & Share of nonblank ballots (\%) \\
+\midrule
+1 & 23,482 & 67.197 \\
+2 & 9,113 & 26.078 \\
+3 & 2,200 & 6.296 \\
+4 & 150 & 0.429 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This point is worth emphasizing. A common criticism of approval voting is that strategic incentives will drive voters toward one-candidate ballots. The St.~Louis data do not eliminate that possibility as a theoretical concern, but they do show that it was not behaviorally dominant in this case. A substantial minority of the electorate made active use of the opportunity to support multiple candidates.
+
+\subsection{Multi-approval behavior by candidate coalition}
+The pattern becomes sharper when one conditions on which candidate a voter approved. Supporters of the two frontrunners were less likely to cast multi-approval ballots than supporters of the two trailing candidates. Among Spencer approvers, 9,238 of 23,826 (38.773\%) also approved at least one additional candidate. The comparable figure for Tishaura O.~Jones approvers was 4,882 of 11,612 (42.043\%). By contrast, 7,342 of 8,701 Butler approvers (84.381\%) and 3,964 of 4,769 Andrew Jones approvers (83.120\%) also approved someone else.
+
+\begin{table}[htbp]
+\centering
+\caption{Multi-approval behavior among each candidate's approvers}
+\label{tab:multiapproval}
+\begin{tabular}{lccc}
+\toprule
+Candidate & Total approvers & Multi-approvers & Multi-approval rate (\%) \\
+\midrule
+Cara Spencer & 23,826 & 9,238 & 38.773 \\
+Tishaura O.~Jones & 11,612 & 4,882 & 42.043 \\
+Michael (Mike) Butler & 8,701 & 7,342 & 84.381 \\
+Andrew Jones & 4,769 & 3,964 & 83.120 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This asymmetry is substantively important. Supporters of lower-polling candidates often face the harshest trade-off under plurality rules: supporting a preferred but less viable option may leave them unable to influence the decisive contest among frontrunners. In St.~Louis, these voters frequently used the approval ballot to avoid that exclusion. The pattern is therefore consistent with the claim that approval voting permits broader preference expression, especially among voters whose first-choice candidate is not the leading contender.
+
+At the same time, the pattern should not be overinterpreted. One cannot infer from these data alone whether a Butler voter who also approved Spencer was expressing equal approval, strategic compromise, or simply a judgment that both candidates were acceptable relative to the field. The important empirical point is narrower: a large fraction of such voters did not confine themselves to a single-candidate ballot.
+
+\subsection{Co-approval patterns and coalition structure}
+The co-approval matrix further clarifies the structure of candidate overlap. Several entries are especially informative. Among Andrew Jones approvers, 2,180 of 4,769 (45.712\%) also approved Butler. Among Butler approvers, 2,180 of 8,701 (25.055\%) also approved Andrew Jones. Butler and Andrew Jones supporters were also notably likely to approve Spencer: 5,273 of 8,701 Butler approvers (60.602\%) and 3,201 of 4,769 Andrew Jones approvers (67.121\%) also approved Spencer. By contrast, overlap with incumbent Tishaura O.~Jones was lower, especially among Andrew Jones supporters, only 496 of whom (10.401\%) also approved her; the corresponding figure among Butler approvers was 2,338 (26.870\%).
+
+\begin{table}[htbp]
+\centering
+\caption{Selected conditional co-approval rates}
+\label{tab:coapproval}
+\begin{tabular}{p{8cm}cc}
+\toprule
+Conditional probability & Count & Value (\%) \\
+\midrule
+$\Pr(\text{approve Butler} \mid \text{approve Andrew Jones})$ & 2,180 & 45.712 \\
+$\Pr(\text{approve Andrew Jones} \mid \text{approve Butler})$ & 2,180 & 25.055 \\
+$\Pr(\text{approve Spencer} \mid \text{approve Butler})$ & 5,273 & 60.602 \\
+$\Pr(\text{approve Spencer} \mid \text{approve Andrew Jones})$ & 3,201 & 67.121 \\
+$\Pr(\text{approve Tishaura O.~Jones} \mid \text{approve Butler})$ & 2,338 & 26.870 \\
+$\Pr(\text{approve Tishaura O.~Jones} \mid \text{approve Andrew Jones})$ & 496 & 10.401 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These asymmetries suggest that Spencer occupied a coalitionally expansive position in the field. The data are consistent with the interpretation that she was broadly acceptable to voters whose first preference may have lain elsewhere, especially among backers of Butler and Andrew Jones. This should not be confused with a claim about latent complete rankings; approval data do not reveal where Spencer stood relative to Butler or Andrew Jones on any given ballot where more than one was approved. But the co-approval structure does indicate that Spencer was frequently included in the acceptable set of voters supporting other candidates.
+
+This is an example of the descriptive value of approval-ballot CVRs. Under plurality tabulation one would observe only each candidate's total and perhaps precinct variation. Under approval voting, ballot-level overlap identifies which candidacies were coalition-compatible and which were more isolated.
+
+\subsection{Maximal opposition and ``anyone but'' ballots}
+A distinctive feature of approval ballots is that they can express not only support coalitions but also concentrated opposition. In a four-candidate race, a ballot approving three candidates and excluding one may reasonably be interpreted as the strongest feasible expression of opposition to that excluded candidate while still participating positively in the contest. The St.~Louis data contain 2,200 such ballots, representing 6.296\% of nonblank mayoral ballots.
+
+Among these ballots, 1,423 (64.682\%) excluded Tishaura O.~Jones, 587 (26.682\%) excluded Andrew Jones, 139 (6.318\%) excluded Spencer, and 51 (2.318\%) excluded Butler. Table~\ref{tab:anyonebut} summarizes these values.
+
+\begin{table}[htbp]
+\centering
+\caption{Distribution of ``anyone but'' ballots by excluded candidate}
+\label{tab:anyonebut}
+\begin{tabular}{lcc}
+\toprule
+Excluded candidate & Count & Share of all three-approval ballots (\%) \\
+\midrule
+Tishaura O.~Jones & 1,423 & 64.682 \\
+Andrew Jones & 587 & 26.682 \\
+Cara Spencer & 139 & 6.318 \\
+Michael (Mike) Butler & 51 & 2.318 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This pattern suggests that Tishaura O.~Jones was the most polarizing candidate in the field, at least by this descriptive measure. Butler, by contrast, appears to have been the least objectionable among voters casting maximal-opposition ballots. Again, the measure is not a complete representation of negative sentiment in the electorate; it captures only one distinctive ballot type. But it shows that approval-ballot CVRs make possible forms of descriptive inference about electoral polarization that are difficult to recover from plurality data.
+
+\section{Discussion}
+\subsection{What the St.~Louis data do and do not show}
+The most defensible interpretation of the St.~Louis CVRs is modest but important. The data show that approval voting in a real citywide election generated substantial multi-candidate support, especially among voters backing less competitive candidates. They also show that approval ballots can reveal coalition overlap and concentrated opposition in ways that are not available under single-choice tabulation.
+
+These findings bear directly on the strongest form of the ``bullet voting'' critique. If approval voting were behaviorally equivalent to plurality in practice, one would expect multi-approval behavior to be vanishingly rare or politically irrelevant. That is not what appears in St.~Louis. About one-third of the electorate used the ballot to support more than one candidate, and this behavior was particularly common among voters whose first-choice option was not a frontrunner.
+
+However, the data do \emph{not} establish that all such approvals were fully sincere, nor do they prove that approval voting is strategyproof. The literature already makes clear that no sufficiently expressive and representative voting rule can avoid strategic considerations entirely \citep{brams2007approval, brams2022excess}. A voter may approve an additional candidate because that candidate is genuinely acceptable, because the voter is strategically hedging, or because the distinction between these motives is itself thin in a top-two primary. The present paper does not adjudicate among those interpretations.
+
+\subsection{Expressiveness without rankings}
+The St.~Louis data also illuminate a broader point about voter expression. Approval ballots do not encode a full ordering of candidates, but that should not be confused with being categorically less expressive than ranked formats. Rankings add ordinal detail, yet they also prohibit voters from expressing equal support for tied candidates; score and range ballots, by contrast, can encode intensity as well as ties. The relevant comparison here is therefore narrower: approval ballots reveal a different kind of information than ranked ballots, not simply a weaker one.
+
+What approval voting records especially well is the boundary between acceptable and unacceptable candidates. If a voter approves Spencer and Butler but not Tishaura O.~Jones or Andrew Jones, the ballot implies that both Spencer and Butler lie above both excluded candidates in that voter's acceptability set. Aggregated across thousands of ballots, these relationships reveal coalition geometry that is substantively meaningful even without a complete ranking or cardinal score.
+
+This is particularly relevant to public debates that treat the absence of rankings as equivalent to an absence of information. The St.~Louis case suggests the opposite. Approval ballots may be coarser than score ballots on intensity and different from ranked ballots in the kind of information they encode, but in the aggregate they are still capable of revealing substantial structure in the electorate.
+
+\subsection{External validity and institutional specificity}
+A central limitation of the paper is external validity. St.~Louis is a single city, the election involved only four mayoral candidates, and the institutional setting was a nonpartisan top-two primary. Different contexts may generate different approval patterns. It is plausible, for example, that the top-two structure encouraged additional approvals by making the problem of which candidates should advance especially salient. Conversely, one might expect even broader approval behavior in non-eliminative or multiwinner settings.
+
+The election also occurred in a city with a specific reform history. Approval voting had been adopted in direct response to a high-salience plurality failure in 2017. Voters may therefore have entered the 2025 election with a clearer intuitive rationale for using multiple approvals than would exist in a less politically primed setting.
+
+None of these limitations undermine the value of the case. They simply define its scope. The St.~Louis primary is best understood as a well-observed, substantively important case study that should motivate further empirical work rather than close the debate.
+
+\section{Conclusion}
+The 2025 St.~Louis mayoral primary provides rare ballot-level evidence on how approval voting works in practice. Three conclusions follow. First, approval voting did not collapse into single-candidate voting: a substantial minority of voters approved more than one candidate. Second, this behavior was concentrated among supporters of lower-polling candidates, suggesting that approval ballots allowed politically relevant expression beyond a simple favorite-choice vote. Third, co-approval and maximal-opposition patterns reveal coalition structure and candidate positioning that would be hidden in single-choice data.
+
+For scholars of electoral systems, the broader implication is methodological as much as substantive. Cast vote records from approval elections deserve the same analytical attention that ranked-choice CVRs increasingly receive. They permit empirical evaluation of claims about strategic behavior, expressive capacity, and coalition formation that otherwise remain speculative. For practitioners and reformers, the St.~Louis case suggests that when voters are given the option to support multiple acceptable candidates, many of them do so.
+
+The next step is not to generalize too quickly from a single city. It is to build a comparative empirical literature. As more jurisdictions release ballot-level data, researchers will be better positioned to test whether the patterns observed in St.~Louis recur elsewhere, under what institutional conditions they do so, and how approval voting compares empirically---rather than only theoretically---to its competitors.
+
+\section*{Data availability note}
+This manuscript is grounded in the raw Hart Verity CVR export and the associated parsing and aggregation scripts in the local \texttt{approval.vote} project, specifically the \texttt{cvr/st-louis} pipeline and the derived SQLite tables used by the public report. The accompanying bundle includes the raw CVR ZIP, extracted summary tables, the data-processing scripts, and the compiled manuscript.
+
+\appendix
+\section{Replication outline}
+The raw election export used here is stored in the local project as \texttt{cvr/st-louis/data/CVRExport-8-27-2025.zip}. The parser in \texttt{cvr/st-louis/cvr\_parser.py} reads each XML file, extracts ballot-, contest-, and selection-level records, and stores them in normalized SQLite tables (\texttt{cvr\_ballots}, \texttt{cvr\_contests}, and \texttt{cvr\_selections}). The orchestration script \texttt{cvr/st-louis/process\_all.py} then computes contest-level summaries including co-approval matrices, approval distributions, candidate-specific approval distributions, and the ``anyone but'' statistic used in this paper.
+
+For the mayoral contest, the relevant report in the main SQLite database is \texttt{report\_id = 39}. Candidate totals are stored in \texttt{candidates}; pairwise co-approval summaries are stored in \texttt{co\_approvals}; and higher-level distributional summaries are stored in \texttt{voting\_patterns}. The key denominator choice in the paper follows the project pipeline: 34,982 mayor-contest records exist in the raw CVR data, but the public report treats the 34,945 records with at least one mayoral approval as the nonblank ballot count for summary analysis.
+
+\bibliographystyle{plainnat}
+\bibliography{st-louis-cvr-paper}
+
+\end{document}
