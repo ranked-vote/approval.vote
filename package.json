@@ -22,7 +22,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-static": "^3.0.10",
 		"better-sqlite3": "^12.6.2",
-		"mermaid": "^11.12.2",
+		"mermaid": "^11.12.3",
 		"puppeteer": "^24.34.0",
 		"qrcode": "^1.5.4",
 		"tippy.js": "^6.3.7",
