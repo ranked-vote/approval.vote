@@ -20,3 +20,6 @@ node_modules
 cvr/st-louis/*.sqlite3
 cvr/st-louis/data/CVRExport-8-27-2025/*
 website/
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc
