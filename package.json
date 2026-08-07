@@ -38,7 +38,7 @@
 		"svelte": "^5.46.1",
 		"svelte-check": "^4.3.5",
 		"svelte-preprocess": "^6.0.3",
-		"svelte-sitemap": "^2.7.1",
+		"svelte-sitemap": "^2.8.0",
 		"terser": "^5.44.1",
 		"tslib": "^2.8.1",
 		"typescript": "^5.9.3",
@@ -46,6 +46,6 @@
 	},
 	"overrides": {
 		"cookie": "^1.1.1",
-		"js-yaml": "^4.1.1"
+		"js-yaml": "^4.3.1"
 	}
 }
